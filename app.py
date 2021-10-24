@@ -1,61 +1,100 @@
-# Run this app with `python app.py` and
-# visit http://127.0.0.1:8050/ in your web browser.
-
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
-import plotly.express as px
-import pandas as pd
+import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output, State, MATCH, ALL
 
-from datetime import date
+import numpy as np
 
+ylabs = ['12am'] + [f"{str(x)}am" for x in range(1, 12)
+                    ] + ['12pm'] + [f"{str(x)}pm" for x in range(1, 12)]
 
-app = dash.Dash(__name__)
+lab_dict = {k: v for k, v in zip(np.arange(0, 24), ylabs)}
 
-colors = {'background': '#fff', 'text': '#7FDBFF'}
+app = dash.Dash(__name__,
+                suppress_callback_exceptions=True,
+                external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-# assume you have a "long-form" data frame
-# see https://plotly.com/python/px-arguments/ for more options
-df = pd.DataFrame({
-    "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-    "Amount": [4, 1, 2, 2, 4, 5],
-    "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-})
-
-fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="group")
-
-fig.update_layout(plot_bgcolor=colors['background'],
-                  paper_bgcolor=colors['background'],
-                  font_color=colors['text'])
-
-app.layout = html.Div(style={'backgroundColor': colors['background']},
-                      children=[
-                          html.H1(children='WakeMatch',
-                                  style={
-                                      'textAlign': 'center',
-                                      'color': colors['text']
-                                  }),
-                          html.Div(children='Simple Timezone Matching',
-                                   style={
-                                       'textAlign': 'center',
-                                       'color': colors['text']
-                                   }),
-                          dcc.RangeSlider(id='my-range-slider',
-                                          min=0,
-                                          max=20,
-                                          step=0.5,
-                                          value=[5, 15]),
-                          html.Div(id='output-container-range-slider'),
-                          dcc.Graph(id='example-graph-2', figure=fig)
-                      ])
+app.layout = html.Div([
+    html.Div([
+            html.H1(children='WakeMatch',
+                    style={'textAlign': 'center'}),
+            html.Div(children='Simple Timezone Matching',
+                    style={'textAlign': 'center'})
+            ]),
+    dbc.Row([
+    dbc.Col([
+    html.Div(id='dropdown-container', children=[]),
+    html.Div(id='dropdown-container-output'),
+    html.Button("Add Filter", id="add-filter", n_clicks=0)
+    ]),
+    dbc.Col(
+    html.Div("Hello World!")
+    )
+    ])
+])
 
 
-@app.callback(
-    dash.dependencies.Output('output-container-range-slider', 'children'),
-    [dash.dependencies.Input('my-range-slider', 'value')])
-def update_output(value):
-    return 'You have selected "{}"'.format(value)
+@app.callback(Output('dropdown-container', 'children'),
+              Input('add-filter', 'n_clicks'),
+              State('dropdown-container', 'children'))
+def display_dropdowns(n_clicks, children):
+    new_dropdown = html.Div([
+        html.Div(f"Person"),
+        dcc.Dropdown(id={
+            'type': 'filter-dropdown',
+            'index': n_clicks
+        },
+                     options=[{
+                         'label': i,
+                         'value': i
+                     } for i in ['NYC', 'MTL', 'LA', 'TOKYO']]),
+        dcc.RangeSlider(min=0,
+                        max=24,
+                        step=None,
+                        marks={
+                            0: '12am',
+                            1: '1am',
+                            2: '2am',
+                            3: '3am',
+                            4: '4am',
+                            5: '5am',
+                            6: '6am',
+                            7: '7am',
+                            8: '8am',
+                            9: '9am',
+                            10: '10am',
+                            11: '11am',
+                            12: '12pm',
+                            13: '1pm',
+                            14: '2pm',
+                            15: '3pm',
+                            16: '4pm',
+                            17: '5pm',
+                            18: '6pm',
+                            19: '7pm',
+                            20: '8pm',
+                            21: '9pm',
+                            22: '10pm',
+                            23: '11pm'
+                        },
+                        value=[8, 17])
+    ],
+                            style={'display': 'block'})
+    children.append(new_dropdown)
+    return children
+
+
+@app.callback(Output('dropdown-container-output', 'children'),
+              Input({
+                  'type': 'filter-dropdown',
+                  'index': ALL
+              }, 'value'))
+def display_output(values):
+    return html.Div([
+        html.Div('Dropdown {} = {}'.format(i + 1, value))
+        for (i, value) in enumerate(values)
+    ])
 
 
 if __name__ == '__main__':
