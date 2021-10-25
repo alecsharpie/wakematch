@@ -32,10 +32,12 @@ app.layout = html.Div([
             html.Div(id='dropdown-container-output'),
             html.Button("Add Filter", id="add-filter", n_clicks=0)
         ]),
-        dbc.Col([html.Div("Hello World!"),
-                 html.Div("The Graph"),
-                dcc.Graph(id='timezone-comparison-graph')
-                ])
+        dbc.Col([
+            html.Div("Hello World!"),
+            html.Div("The Graph"),
+            html.Div(id='timezone-comparison-graph-test'),
+            dcc.Graph(id='timezone-comparison-graph')
+        ])
     ])
 ])
 
@@ -105,6 +107,17 @@ def display_output(values):
         for (i, value) in enumerate(values)
     ])
 
+@app.callback(Output('timezone-comparison-graph-test', 'children'),
+            Input({
+                'type': 'user-range',
+                'index': ALL
+            }, 'value'))
+def display_output(values):
+    return html.Div([
+        html.Div('Dropdown {} = {}'.format(i + 1, value))
+        for (i, value) in enumerate(values)
+    ])
+
 
 @app.callback(dash.dependencies.Output('timezone-comparison-graph', 'figure'),
               Input({
@@ -114,8 +127,19 @@ def display_output(values):
 def update_graph(values):
 
     df = pd.DataFrame([
-        dict(Task="You", Start='1996-02-12 08:00:00', Finish='1996-02-12 17:00:00'),
-        dict(Task="Person 1", Start='1996-02-12 08:00:00', Finish = '1996-02-12 17:00:00')
+        {'Task': values,
+        'Start': 'user-range'
+    }])
+
+    [[8, 17],
+     [8, 17]]
+
+
+
+
+    df = pd.DataFrame([
+        {'Task':"You", 'Start':'1996-02-12 08:00:00', 'Finish':'1996-02-12 17:00:00'},
+        {'Task':"Person 1", 'Start':'1996-02-12 08:00:00', 'Finish' : '1996-02-12 17:00:00'}
     ])
 
     fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task")
