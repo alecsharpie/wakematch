@@ -4,7 +4,12 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State, MATCH, ALL
 
+import plotly.express as px
+
+
 import numpy as np
+import pandas as pd
+
 
 ylabs = ['12am'] + [f"{str(x)}am" for x in range(1, 12)
                     ] + ['12pm'] + [f"{str(x)}pm" for x in range(1, 12)]
@@ -17,20 +22,20 @@ app = dash.Dash(__name__,
 
 app.layout = html.Div([
     html.Div([
-            html.H1(children='WakeMatch',
-                    style={'textAlign': 'center'}),
-            html.Div(children='Simple Timezone Matching',
-                    style={'textAlign': 'center'})
-            ]),
-    dbc.Row([
-    dbc.Col([
-    html.Div(id='dropdown-container', children=[]),
-    html.Div(id='dropdown-container-output'),
-    html.Button("Add Filter", id="add-filter", n_clicks=0)
+        html.H1(children='WakeMatch', style={'textAlign': 'center'}),
+        html.Div(children='Simple Timezone Matching',
+                 style={'textAlign': 'center'})
     ]),
-    dbc.Col(
-    html.Div("Hello World!")
-    )
+    dbc.Row([
+        dbc.Col([
+            html.Div(id='dropdown-container', children=[]),
+            html.Div(id='dropdown-container-output'),
+            html.Button("Add Filter", id="add-filter", n_clicks=0)
+        ]),
+        dbc.Col([html.Div("Hello World!"),
+                 html.Div("The Graph"),
+                dcc.Graph(id='timezone-comparison-graph')
+                ])
     ])
 ])
 
@@ -49,7 +54,11 @@ def display_dropdowns(n_clicks, children):
                          'label': i,
                          'value': i
                      } for i in ['NYC', 'MTL', 'LA', 'TOKYO']]),
-        dcc.RangeSlider(min=0,
+        dcc.RangeSlider(id={
+            'type': 'user-range',
+            'index': n_clicks
+        },
+                        min=0,
                         max=24,
                         step=None,
                         marks={
@@ -95,6 +104,25 @@ def display_output(values):
         html.Div('Dropdown {} = {}'.format(i + 1, value))
         for (i, value) in enumerate(values)
     ])
+
+
+@app.callback(dash.dependencies.Output('timezone-comparison-graph', 'figure'),
+              Input({
+                  'type': 'user-range',
+                  'index': ALL
+              }, 'value'))
+def update_graph(values):
+
+    df = pd.DataFrame([
+        dict(Task="You", Start='1996-02-12 08:00:00', Finish='1996-02-12 17:00:00'),
+        dict(Task="Person 1", Start='1996-02-12 08:00:00', Finish = '1996-02-12 17:00:00')
+    ])
+
+    fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task")
+    fig.update_yaxes(autorange="reversed") # otherwise tasks are listed from the bottom up
+
+
+    return fig
 
 
 if __name__ == '__main__':

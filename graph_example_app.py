@@ -58,5 +58,43 @@ def update_output(value):
     return 'You have selected "{}"'.format(value)
 
 
+@app.callback(
+    dash.dependencies.Output('crossfilter-indicator-scatter', 'figure'), [
+        dash.dependencies.Input('crossfilter-xaxis-column', 'value'),
+        dash.dependencies.Input('crossfilter-yaxis-column', 'value'),
+        dash.dependencies.Input('crossfilter-xaxis-type', 'value'),
+        dash.dependencies.Input('crossfilter-yaxis-type', 'value'),
+        dash.dependencies.Input('crossfilter-year--slider', 'value')
+    ])
+def update_graph(xaxis_column_name, yaxis_column_name, xaxis_type, yaxis_type,
+                 year_value):
+    dff = df[df['Year'] == year_value]
+
+    fig = px.scatter(
+        x=dff[dff['Indicator Name'] == xaxis_column_name]['Value'],
+        y=dff[dff['Indicator Name'] == yaxis_column_name]['Value'],
+        hover_name=dff[dff['Indicator Name'] ==
+                       yaxis_column_name]['Country Name'])
+
+    fig.update_traces(customdata=dff[dff['Indicator Name'] ==
+                                     yaxis_column_name]['Country Name'])
+
+    fig.update_xaxes(title=xaxis_column_name,
+                     type='linear' if xaxis_type == 'Linear' else 'log')
+
+    fig.update_yaxes(title=yaxis_column_name,
+                     type='linear' if yaxis_type == 'Linear' else 'log')
+
+    fig.update_layout(margin={
+        'l': 40,
+        'b': 40,
+        't': 10,
+        'r': 0
+    },
+                      hovermode='closest')
+
+    return fig
+
+
 if __name__ == '__main__':
     app.run_server(debug=True)
