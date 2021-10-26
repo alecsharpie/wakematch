@@ -18,19 +18,14 @@ app.layout = html.Div([
     html.Div([
         html.H1(children='WakeMatch', style={'textAlign': 'center'}),
         html.Div(children='Simple Timezone Matching',
-                 style={'textAlign': 'center'}),
-        html.Div(
-    [
-        html.H1(id="date-time-title"),
-        dcc.Interval(id="clock", interval=1000)
-    ])
+                 style={'textAlign': 'center'})
 
     ]),
     dbc.Row([
         dbc.Col([
             html.Div(id='dropdown-container', children=[]),
             html.Div(id='dropdown-container-output'),
-            html.Button("Add Filter", id="add-filter", n_clicks=0)
+            html.Button("Add Person", id="add-person", n_clicks=0)
         ]),
         dbc.Col([
             dcc.Graph(id='timezone-comparison-graph')
@@ -40,7 +35,7 @@ app.layout = html.Div([
 
 
 @app.callback(Output('dropdown-container', 'children'),
-              Input('add-filter', 'n_clicks'),
+              Input('add-person', 'n_clicks'),
               State('dropdown-container', 'children'))
 def display_dropdowns(n_clicks, children):
 
@@ -104,11 +99,14 @@ def display_dropdowns(n_clicks, children):
               }, 'value'))
 def update_graph(values):
 
-    df = input_to_dataframe(values)
+    if len(values) > 0 :
 
-    fig = create_graph(df)
+        df = input_to_dataframe(values)
 
-    return fig
+        fig = create_graph(df, user_timezone = values[0])
+
+        return fig
+    return {}
 
 if __name__ == '__main__':
     app.run_server(debug=True)

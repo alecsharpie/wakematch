@@ -4,6 +4,16 @@ import pytz
 
 from datetime import datetime, timedelta
 
+def get_limits(user_timezone):
+
+    user_now = datetime.now(tz=pytz.timezone(user_timezone))
+
+    user_start = user_now - timedelta(hours=2)
+
+    times = pd.date_range(user_start, periods=26, freq='1h').tolist()
+
+    return [np.min(times), np.max(times)]
+
 
 def inputs_to_rowdicts(user_timezone, input_name, input_timezone,
                        input_hourrange):
@@ -14,9 +24,9 @@ def inputs_to_rowdicts(user_timezone, input_name, input_timezone,
 
     input_now = user_now.astimezone(pytz.timezone(input_timezone))
 
-    input_start = input_now - timedelta(hours=24)
+    input_start = input_now - timedelta(hours=2)
 
-    times = pd.date_range(input_start, periods=72, freq='1h').tolist()
+    times = pd.date_range(input_start, periods=26, freq='1h').tolist()
 
     #keep obs if they are the times of interest
     time_blips = [
