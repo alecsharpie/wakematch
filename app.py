@@ -11,11 +11,80 @@ import numpy as np
 import pandas as pd
 import pytz
 
+from datetime import datetime, timedelta
 
-ylabs = ['12am'] + [f"{str(x)}am" for x in range(1, 12)
-                    ] + ['12pm'] + [f"{str(x)}pm" for x in range(1, 12)]
 
-lab_dict = {k: v for k, v in zip(np.arange(0, 24), ylabs)}
+def inputs_to_rowdicts(user_timezone, input_name, input_timezone,
+                       input_hourrange):
+
+    start_hour, end_hour = input_hourrange[0], input_hourrange[1]
+
+    user_now = datetime.now(tz=pytz.timezone(user_timezone))
+
+    input_now = user_now.astimezone(pytz.timezone(input_timezone))
+
+    input_start = input_now - timedelta(hours=24)
+
+    times = pd.date_range(input_start, periods=72, freq='1h').tolist()
+
+    #keep obs if they are the times of interest
+    time_blips = [
+        time for time in times
+        if time.hour == start_hour or time.hour == end_hour
+    ]
+
+    # fill in missing start/end times
+    if time_blips[0].hour == end_hour:
+        time_blips.insert(0, np.min(times))
+    if time_blips[-1].hour == start_hour:
+        time_blips.insert(-1, np.max(times))
+
+    # convert into users timezone
+    user_timeblips = [
+        time.astimezone(pytz.timezone(user_timezone)) for time in time_blips
+    ]
+
+    # create dictionary of rows for the inputs
+    row_dict_list = []
+    for x in range(int(len(user_timeblips) / 2)):
+        row_dict_list.append({
+            'person': input_name,
+            'start': user_timeblips.pop(0),
+            'end': user_timeblips.pop(0)
+        })
+
+    return row_dict_list
+
+
+def input_to_dataframe(inputs):
+
+    timezone_inputs = inputs[::2]
+
+    hourrange_inputs = inputs[1::2]
+
+    name_inputs = ['You'] + [
+        f"Person {str(i + 1)}" for i in range(int(len(inputs) / 2 - 1))
+    ]
+
+    user_tz = timezone_inputs[0]
+
+    all_waketimes = []
+    for person in zip(name_inputs, timezone_inputs, hourrange_inputs):
+
+        rowdict = inputs_to_rowdicts(user_timezone=user_tz,
+                                     input_name=person[0],
+                                     input_timezone=person[1],
+                                     input_hourrange=person[2])
+
+        all_waketimes = all_waketimes + rowdict
+
+    return pd.DataFrame(all_waketimes)
+
+
+# ylabs = ['12am'] + [f"{str(x)}am" for x in range(1, 12)
+#                     ] + ['12pm'] + [f"{str(x)}pm" for x in range(1, 12)]
+
+# lab_dict = {k: v for k, v in zip(np.arange(0, 24), ylabs)}
 
 app = dash.Dash(__name__,
                 suppress_callback_exceptions=True,
@@ -25,7 +94,13 @@ app.layout = html.Div([
     html.Div([
         html.H1(children='WakeMatch', style={'textAlign': 'center'}),
         html.Div(children='Simple Timezone Matching',
-                 style={'textAlign': 'center'})
+                 style={'textAlign': 'center'}),
+        html.Div(
+    [
+        html.H1(id="date-time-title"),
+        dcc.Interval(id="clock", interval=1000)
+    ])
+
     ]),
     dbc.Row([
         dbc.Col([
@@ -34,9 +109,6 @@ app.layout = html.Div([
             html.Button("Add Filter", id="add-filter", n_clicks=0)
         ]),
         dbc.Col([
-            html.Div("Hello World!"),
-            html.Div("The Graph"),
-            html.Div(id='timezone-comparison-graph-test'),
             dcc.Graph(id='timezone-comparison-graph')
         ])
     ])
@@ -53,15 +125,16 @@ def display_dropdowns(n_clicks, children):
     new_dropdown = html.Div([
         html.Div(f"Person"),
         dcc.Dropdown(id={
-            'type': 'user-range',
+            'type': 'user-inputs',
             'index': n_clicks
         },
                      options=[{
                          'label': i,
                          'value': i
-                     } for i in all_timezones]),
+                     } for i in all_timezones],
+                     value='Australia/Victoria'),
         dcc.RangeSlider(id={
-            'type': 'user-range',
+            'type': 'user-inputs',
             'index': n_clicks
         },
                         min=0,
@@ -100,46 +173,41 @@ def display_dropdowns(n_clicks, children):
     return children
 
 
-@app.callback(Output('timezone-comparison-graph-test', 'children'),
-            Input({
-                'type': 'user-range',
-                'index': ALL
-            }, 'value'))
-def display_output(values):
-    return html.Div([
-        html.Div('Dropdown {} = {}'.format(i + 1, value))
-        for (i, value) in enumerate(values)
-    ])
-
-
 @app.callback(dash.dependencies.Output('timezone-comparison-graph', 'figure'),
               Input({
-                  'type': 'user-range',
+                  'type': 'user-inputs',
                   'index': ALL
               }, 'value'))
 def update_graph(values):
 
-    df = pd.DataFrame([
-        {'Task': values,
-        'Start': 'user-range'
-    }])
+    df = input_to_dataframe(values)
 
-    [[8, 17],
-     [8, 17]]
-
-
-
-
-    df = pd.DataFrame([
-        {'Task':"You", 'Start':'1996-02-12 08:00:00', 'Finish':'1996-02-12 17:00:00'},
-        {'Task':"Person 1", 'Start':'1996-02-12 08:00:00', 'Finish' : '1996-02-12 17:00:00'}
-    ])
-
-    fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task")
+    fig = px.timeline(df, x_start="start", x_end="end", y="person")
     fig.update_yaxes(autorange="reversed") # otherwise tasks are listed from the bottom up
 
-
     return fig
+
+def input_to_dataframe(inputs):
+
+    timezone_inputs = inputs[::2]
+
+    hourrange_inputs = inputs[1::2]
+
+    name_inputs = ['You'] + [f"Person {str(i + 1)}" for i in range(int(len(inputs)/2 - 1))]
+
+    user_tz = timezone_inputs[0]
+
+    all_waketimes = []
+    for person in zip(name_inputs, timezone_inputs, hourrange_inputs):
+
+        rowdict = inputs_to_rowdicts(user_timezone = user_tz,
+                                    input_name = person[0],
+                                    input_timezone = person[1],
+                                    input_hourrange = person[2])
+
+        all_waketimes = all_waketimes + rowdict
+
+    return pd.DataFrame(all_waketimes)
 
 
 if __name__ == '__main__':
