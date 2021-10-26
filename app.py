@@ -100,17 +100,6 @@ def display_dropdowns(n_clicks, children):
     return children
 
 
-@app.callback(Output('dropdown-container-output', 'children'),
-              Input({
-                  'type': 'filter-dropdown',
-                  'index': ALL
-              }, 'value'))
-def display_output(values):
-    return html.Div([
-        html.Div('Dropdown {} = {}'.format(i + 1, value))
-        for (i, value) in enumerate(values)
-    ])
-
 @app.callback(Output('timezone-comparison-graph-test', 'children'),
             Input({
                 'type': 'user-range',
