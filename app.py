@@ -9,6 +9,7 @@ import plotly.express as px
 
 import numpy as np
 import pandas as pd
+import pytz
 
 
 ylabs = ['12am'] + [f"{str(x)}am" for x in range(1, 12)
@@ -46,16 +47,19 @@ app.layout = html.Div([
               Input('add-filter', 'n_clicks'),
               State('dropdown-container', 'children'))
 def display_dropdowns(n_clicks, children):
+
+    all_timezones = list(pytz.all_timezones_set)
+
     new_dropdown = html.Div([
         html.Div(f"Person"),
         dcc.Dropdown(id={
-            'type': 'filter-dropdown',
+            'type': 'user-range',
             'index': n_clicks
         },
                      options=[{
                          'label': i,
                          'value': i
-                     } for i in ['NYC', 'MTL', 'LA', 'TOKYO']]),
+                     } for i in all_timezones]),
         dcc.RangeSlider(id={
             'type': 'user-range',
             'index': n_clicks
