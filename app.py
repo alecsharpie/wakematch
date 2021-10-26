@@ -19,18 +19,16 @@ app.layout = html.Div([
         html.H1(children='WakeMatch', style={'textAlign': 'center'}),
         html.Div(children='Simple Timezone Matching',
                  style={'textAlign': 'center'})
-
     ]),
     dbc.Row([
         dbc.Col([
             html.Div(id='dropdown-container', children=[]),
             html.Div(id='dropdown-container-output'),
             html.Button("Add Person", id="add-person", n_clicks=0)
-        ]),
-        dbc.Col([
-            dcc.Graph(id='timezone-comparison-graph')
-        ])
-    ])
+        ], width = 4),
+        dbc.Col([dcc.Graph(id='timezone-comparison-graph')], width = 8)
+    ],
+            style={'padding': '20px'})
 ])
 
 
@@ -41,8 +39,15 @@ def display_dropdowns(n_clicks, children):
 
     all_timezones = list(pytz.all_timezones_set)
 
+
+    display_name =  f'Person {n_clicks}'
+
+    if n_clicks == 0:
+        display_name = 'You'
+
+
     new_dropdown = html.Div([
-        html.Div(f"Person"),
+        html.Div(display_name),
         dcc.Dropdown(id={
             'type': 'user-inputs',
             'index': n_clicks
@@ -61,33 +66,34 @@ def display_dropdowns(n_clicks, children):
                         step=None,
                         marks={
                             0: '12am',
-                            1: '1am',
-                            2: '2am',
+                            1: '',
+                            2: '',
                             3: '3am',
-                            4: '4am',
-                            5: '5am',
+                            4: '',
+                            5: '',
                             6: '6am',
-                            7: '7am',
-                            8: '8am',
+                            7: '',
+                            8: '',
                             9: '9am',
-                            10: '10am',
-                            11: '11am',
+                            10: '',
+                            11: '',
                             12: '12pm',
-                            13: '1pm',
-                            14: '2pm',
+                            13: '',
+                            14: '',
                             15: '3pm',
-                            16: '4pm',
-                            17: '5pm',
+                            16: '',
+                            17: '',
                             18: '6pm',
-                            19: '7pm',
-                            20: '8pm',
+                            19: '',
+                            20: '',
                             21: '9pm',
-                            22: '10pm',
-                            23: '11pm'
+                            22: '',
+                            23: ''
                         },
                         value=[8, 17])
     ],
-                            style={'display': 'block'})
+                            style={'display': 'block',
+                                'padding-bottom': '10px'})
     children.append(new_dropdown)
     return children
 
