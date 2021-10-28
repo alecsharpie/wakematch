@@ -16,7 +16,7 @@ app = dash.Dash(__name__,
 
 app.layout = html.Div([
     html.Div([
-        html.H1(children='WakeMatch', style={'textAlign': 'center'}),
+        html.H1(children='WakeTimes', style={'textAlign': 'center'}),
         html.Div(children='Simple Timezone Matching',
                  style={'textAlign': 'center'})
     ]),
