@@ -13,6 +13,6 @@ def get_times(user_timezone):
 
     user_start = round_to_hour(user_now) - timedelta(hours=2)
 
-    times = pd.date_range(user_start, periods=26, freq='1h').tolist()
+    times = pd.date_range(user_start, periods=2 + 24 * 2, freq='1h').tolist()
 
     return times

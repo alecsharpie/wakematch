@@ -10,8 +10,8 @@ def create_graph(df, user_timezone):
                       x_end="end",
                       y="person",
                       range_x=get_limits(user_timezone),
-                      color_discrete_sequence=['#008CEF'],
-                      opacity=0.9,
+                      color_discrete_sequence=['#003CBE'],
+                      opacity=0.3,
                       hover_name=None,
                       hover_data={
                           'tz': False,
@@ -24,7 +24,7 @@ def create_graph(df, user_timezone):
         fig.add_vrect(x0=row['start'],
                       x1=row['end'],
                       fillcolor="#FCD221",
-                      opacity=0.7,
+                      opacity=0.5,
                       layer="above",
                       line_width=1)
 

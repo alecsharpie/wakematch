@@ -63,7 +63,7 @@ def display_dropdowns(n_clicks, children):
             'index': n_clicks
         },
                         min=0,
-                        max=24,
+                        max=23,
                         step=None,
                         marks={
                             0: '12am',
@@ -91,7 +91,7 @@ def display_dropdowns(n_clicks, children):
                             22: '',
                             23: ''
                         },
-                        value=[8, 17])
+                        value=[8, 22])
     ],
                             style={'display': 'block',
                                 'padding-bottom': '10px'})
@@ -122,9 +122,10 @@ def update_comparison(values):
                     html.Span(
                         f"{row['end'].astimezone(pytz.timezone(tz)).strftime('%a, %-I %p')}",
                         style={'font-weight': 'bold'}),
-                    html.Span(f" {tz}")
+                    html.Span(f" {tz}"),
+                    html.Br()
                 ]) for tz in df.tz.unique()
-            ] + [check_or(idx, waketimes)])
+            ] + [html.Div(check_or(idx, waketimes))])
             for idx, row in waketimes.iterrows()
         ])
 
