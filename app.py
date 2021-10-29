@@ -116,10 +116,16 @@ def update_comparison(values):
         comparison_text = html.Div([html.Div(f'Available Times:')] + [
             html.Div([
                 html.Div([
-                html.Span(f"{row['start'].strftime('%a, %-I %p')}",style={'font-weight': 'bold'}), " to ",
-                html.Span(f"{row['end'].strftime('%a, %-I %p')}",style={'font-weight': 'bold'}),
-                html.Span(f" {tz}")]) for tz in df.tz.unique()
-                ] + [check_or(idx, waketimes)]) for idx, row in waketimes.iterrows()
+                    html.Span(
+                        f"{row['start'].astimezone(pytz.timezone(tz)).strftime('%a, %-I %p')}",
+                        style={'font-weight': 'bold'}), " to ",
+                    html.Span(
+                        f"{row['end'].astimezone(pytz.timezone(tz)).strftime('%a, %-I %p')}",
+                        style={'font-weight': 'bold'}),
+                    html.Span(f" {tz}")
+                ]) for tz in df.tz.unique()
+            ] + [check_or(idx, waketimes)])
+            for idx, row in waketimes.iterrows()
         ])
 
         return comparison_text
