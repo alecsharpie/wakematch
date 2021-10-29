@@ -15,7 +15,12 @@ def create_graph(df, user_timezone):
     for idx, row in find_waketimes(df, user_timezone).iterrows():
         fig.add_vrect(x0=row['start'], x1=row['end'])
 
+
+
     fig.update_yaxes(
-        autorange="reversed", visible=False,
-        showticklabels=False)  # otherwise tasks are listed from the bottom up
+        tickfont={'color': '#cc5500',
+                  'size': 100},
+        autorange="reversed")  # otherwise tasks are listed from the bottom up
+
+    fig.update_layout(yaxis_title=None)
     return fig

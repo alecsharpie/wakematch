@@ -57,8 +57,8 @@ def input_to_dataframe(inputs):
 
     hourrange_inputs = inputs[1::2]
 
-    name_inputs = ['You'] + [
-        f"Person {str(i + 1)}" for i in range(int(len(inputs) / 2 - 1))
+    name_inputs = ['You '] + [
+        f"Person {str(i + 1)} " for i in range(int(len(inputs) / 2 - 1))
     ]
 
     user_tz = timezone_inputs[0]
