@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State, ALL
 
 import pytz
 
-from wakematch.process_data import input_to_dataframe
+from wakematch.process_data import input_to_dataframe, find_waketimes
 from wakematch.create_graph import create_graph
 
 
@@ -23,10 +23,11 @@ app.layout = html.Div([
     dbc.Row([
         dbc.Col([
             html.Div(id='dropdown-container', children=[]),
-            html.Div(id='dropdown-container-output'),
             html.Button("Add Person", id="add-person", n_clicks=0)
         ], width = 4),
-        dbc.Col([dcc.Graph(id='timezone-comparison-graph')], width = 8)
+        dbc.Col([
+            html.Div(id='timezone-comparison'),
+            dcc.Graph(id='timezone-comparison-graph')], width = 8)
     ],
             style={'padding': '20px'})
 ])
@@ -97,8 +98,30 @@ def display_dropdowns(n_clicks, children):
     children.append(new_dropdown)
     return children
 
+@app.callback(Output('timezone-comparison', 'children'),
+              Input({
+                  'type': 'user-inputs',
+                  'index': ALL
+              }, 'value'))
+def update_comparison(values):
 
-@app.callback(dash.dependencies.Output('timezone-comparison-graph', 'figure'),
+    if len(values) > 0:
+
+        df = input_to_dataframe(values)
+
+        waketimes = find_waketimes(df, user_timezone = values[0])
+        return html.Div(
+            [html.Div(f'Good {values[0]} times to meet would be:')] + [
+                html.Div([
+                    f"between ", f"{row['start'].strftime(' %d %b, %-I %p')}",
+                    " and ", f"{row['end'].strftime('%d %b, %-I %p')}"
+                ]) for idx, row in waketimes.iterrows()
+            ])
+
+    return html.Div([])
+
+
+@app.callback(Output('timezone-comparison-graph', 'figure'),
               Input({
                   'type': 'user-inputs',
                   'index': ALL

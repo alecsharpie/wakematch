@@ -15,11 +15,10 @@ def create_graph(df, user_timezone):
     for idx, row in find_waketimes(df, user_timezone).iterrows():
         fig.add_vrect(x0=row['start'], x1=row['end'])
 
-
+    # ({row['start'].astimezone(pytz.timezone('Europe/Zurich')).strftime('%I%p, %d %b, %Y')} and {row['end'].astimezone(pytz.timezone('Europe/Zurich')).strftime('%I%p, %d %b, %Y')} their time)
 
     fig.update_yaxes(
-        tickfont={'color': '#cc5500',
-                  'size': 100},
+        tickfont={'size': 20},
         autorange="reversed")  # otherwise tasks are listed from the bottom up
 
     fig.update_layout(yaxis_title=None)
