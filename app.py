@@ -109,14 +109,20 @@ def update_comparison(values):
 
         df = input_to_dataframe(values)
 
+        print(df)
+
         waketimes = find_waketimes(df, user_timezone = values[0])
-        return html.Div(
-            [html.Div(f'Good {values[0]} times to meet would be:')] + [
+
+        comparison_text = html.Div([html.Div(f'Available Times:')] + [
+            html.Div([
                 html.Div([
-                    f"between ", f"{row['start'].strftime(' %d %b, %-I %p')}",
-                    " and ", f"{row['end'].strftime('%d %b, %-I %p')}"
+                html.Span(f"{row['start'].strftime('%a, %-I %p')}",style={'font-weight': 'bold'}), " to ",
+                html.Span(f"{row['end'].strftime('%a, %-I %p')}",style={'font-weight': 'bold'}),
+                html.Span(f" {values[0]}")]) for tz in df.tz.unique()
                 ]) for idx, row in waketimes.iterrows()
-            ])
+        ])
+
+        return comparison_text
 
     return html.Div([])
 

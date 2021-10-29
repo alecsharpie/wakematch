@@ -44,6 +44,7 @@ def inputs_to_rowdicts(user_timezone, input_name, input_timezone,
     for x in range(int(len(user_timeblips) / 2)):
         row_dict_list.append({
             'person': input_name,
+            'tz': input_timezone,
             'start': user_timeblips.pop(0),
             'end': user_timeblips.pop(0)
         })
@@ -126,7 +127,7 @@ def find_waketimes(df, user_timezone):
         intervals = [list(X.reshape(-1)[labs == lab]) for lab in np.unique(labs)]
 
         # only include interval if it is atleast an hour long
-        intervals = [interval for interval in intervals if len(interval) > 1]
+        intervals = [interval for interval in intervals[::-1] if len(interval) > 1]
 
         if len(intervals) > 0:
             df = pd.DataFrame([{
