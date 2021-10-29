@@ -20,16 +20,31 @@ app.layout = html.Div([
         html.Div(children='Simple Timezone Matching',
                  style={'textAlign': 'center'})
     ]),
+    dbc.Row(
+        dbc.Col([
+            html.Div(id='dropdown-container',
+                     children=[],
+                     style={
+                         'display': 'flex',
+                         'flex-direction': 'row',
+                         'flex-wrap': 'wrap'
+                     }),
+            dbc.Button("Add Person",
+                       id="add-person",
+                       n_clicks=0,
+                       style={'margin':'10px'}),
+            html.Hr()
+        ])),
+    dbc.Row([
+        dbc.Col([html.Div(id='timezone-comparison')], width=4),
+        dbc.Col([dcc.Graph(id='timezone-comparison-graph')], width=8)
+    ],
+            style={'padding': '20px'}),
     dbc.Row([
         dbc.Col([
-            html.Div(id='dropdown-container', children=[]),
-            html.Button("Add Person", id="add-person", n_clicks=0)
-        ], width = 4),
-        dbc.Col([
-            html.Div(id='timezone-comparison'),
-            dcc.Graph(id='timezone-comparison-graph')], width = 8)
-    ],
-            style={'padding': '20px'})
+            html.Div('Alec Sharp')
+        ], style = {'padding': '30px'})
+    ])
 ])
 
 
@@ -93,8 +108,10 @@ def display_dropdowns(n_clicks, children):
                         },
                         value=[8, 22])
     ],
-                            style={'display': 'block',
-                                'padding-bottom': '10px'})
+                            style={
+                                'width': '33%',
+                                'padding': '0px 10px 10px 10px'
+                            })
     children.append(new_dropdown)
     return children
 
@@ -113,7 +130,10 @@ def update_comparison(values):
 
         waketimes = find_waketimes(df, user_timezone = values[0])
 
-        comparison_text = html.Div([html.Div(f'Available Times:')] + [
+        comparison_text = html.Div([
+            html.Div(f'Available Times:', style={'font-size': '28px',
+                                                 'padding-bottom': '15px'})
+        ] + [
             html.Div([
                 html.Div([
                     html.Span(
@@ -125,8 +145,9 @@ def update_comparison(values):
                     html.Span(f" {tz}"),
                     html.Br()
                 ]) for tz in df.tz.unique()
-            ] + [html.Div(check_or(idx, waketimes))])
-            for idx, row in waketimes.iterrows()
+            ] + [
+                html.Div(check_or(idx, waketimes), style = {'line-height': '2'})
+            ]) for idx, row in waketimes.iterrows()
         ])
 
         return comparison_text
