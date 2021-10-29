@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 import pytz
 
-from datetime import datetime, timedelta
-
 from sklearn.cluster import AgglomerativeClustering
 
 from wakematch.process_dates import get_times
@@ -71,8 +69,7 @@ def input_to_dataframe(inputs):
                                      input_name=person[0],
                                      input_timezone=person[1],
                                      input_hourrange=person[2])
-        # start and end are swapped
-        # print(rowdict)
+
         all_waketimes = all_waketimes + rowdict
 
     return pd.DataFrame(all_waketimes)
@@ -80,11 +77,8 @@ def input_to_dataframe(inputs):
 
 def find_match(df, user_timezone):
 
-    # contains all 3 intervals
-    #print(df)
-
     times = get_times(user_timezone)
-    #print(times)
+
     time_dict = {}
     for time in times:
         n_wakes = 0
@@ -93,17 +87,10 @@ def find_match(df, user_timezone):
                 n_wakes += 1
         time_dict[time] = n_wakes
 
-    # only the first interval is being counted
-    # when count should be 3 its 2 or 1
-    #print(time_dict)
-
     matches = {
         k: v
         for k, v in time_dict.items() if v == len(df.person.unique())
     }.keys()
-
-    # does not contain all matches
-    #print(matches)
 
     return matches
 
@@ -117,8 +104,6 @@ def find_waketimes(df, user_timezone):
         X = X.reshape(-1, 1)
 
         X_values = np.array([[x[0].value] for x in X])
-
-        print(X_values)
 
         agg_clusts = AgglomerativeClustering(n_clusters = None , linkage = 'single', distance_threshold = 3600000000001).fit(X_values)
 
