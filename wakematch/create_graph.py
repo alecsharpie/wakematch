@@ -29,8 +29,6 @@ def create_graph(df, user_timezone):
                         layer="above",
                         line_width=1)
 
-    # ({row['start'].astimezone(pytz.timezone('Europe/Zurich')).strftime('%I%p, %d %b, %Y')} and {row['end'].astimezone(pytz.timezone('Europe/Zurich')).strftime('%I%p, %d %b, %Y')} their time)
-
     fig.update_yaxes(
         tickfont={'size': 20},
         autorange="reversed")  # otherwise tasks are listed from the bottom up

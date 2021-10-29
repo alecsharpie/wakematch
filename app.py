@@ -5,7 +5,9 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State, ALL
 
 import pytz
+import numpy as np
 
+from wakematch.process_dates import calc_time_diff
 from wakematch.process_data import input_to_dataframe, find_waketimes, check_or
 from wakematch.create_graph import create_graph
 
@@ -30,7 +32,7 @@ app.layout = html.Div([
                          'display': 'flex',
                          'flex-flow': 'row wrap'
                      }),
-            dbc.Button("Add Person + ",
+            dbc.Button(" + Add Person",
                        id="add-person",
                        n_clicks=0,
                        style={
@@ -52,7 +54,7 @@ app.layout = html.Div([
                 'margin': '0px',
                 'padding': '0px'
             }),
-            html.Div('Alec Sharp')], style={'padding': '30px'})])
+            html.Div(['Made by ', dcc.Link('Alec Sharp', href ='www.alecsharpie.me')])], style={'padding': '30px'})])
 ])
 
 
@@ -134,8 +136,6 @@ def update_comparison(values):
 
         df = input_to_dataframe(values)
 
-        print(df.tz.unique())
-
         waketimes = find_waketimes(df, user_timezone = values[0])
 
         comparison_text = html.Div([
@@ -150,7 +150,7 @@ def update_comparison(values):
                     html.Span(
                         f"{row['end'].astimezone(pytz.timezone(tz)).strftime('%a, %-I %p')}",
                         style={'font-weight': 'bold'}),
-                    html.Span(f" {tz}"),
+                    html.Span(f" {tz}"), # {calc_time_diff(row['start'].replace(tzinfo=None), user_tz = values[0], input_tz = tz)}"),
                     html.Br()
                 ]) for tz in df.tz.unique()
             ] + [
