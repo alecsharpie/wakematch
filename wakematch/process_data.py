@@ -4,6 +4,8 @@ import pytz
 
 from datetime import datetime, timedelta
 
+from sklearn.cluster import AgglomerativeClustering
+
 from wakematch.process_dates import get_times
 
 def get_limits(user_timezone):
@@ -106,53 +108,35 @@ def find_match(df, user_timezone):
 
 
 def find_waketimes(df, user_timezone):
-    x = [match for match in find_match(df, user_timezone)]
-    # find match is not working
-    #print(x)
 
-    # # this loop does not find all occurances
-    # # you shuold find all occurances first
-    # # and use this to break up the list?
-    # timeslots_list = []
-    # diff_list = []
-    # for i in range(len(x) - 1):
-    #     if ((x[i + 1] - x[i]) > np.timedelta64(1,
-    #                                            'h')):  # or (i+1 == len(x)-1):
-    #         diff_list.append(i)
+    X = np.array([match for match in find_match(df, user_timezone)])
 
-    # if len(diff_list) == 0:
-    #     intervals = [x]
+    if len(X) > 1:
 
-    # if len(diff_list) == 1:
-    #     intervals = x[:diff_list[0]+1] + x[diff_list[0]+1:]
+        X = X.reshape(-1, 1)
 
-    # if len(diff_list) > 1:
-    #     waketimes_list = []
-    #     intervals = x[:diff_list[0]+1] + x[diff_list[-1]+1:] + waketimes_list
+        X_values = np.array([[x[0].value] for x in X])
 
-    #     for diff in diff_list:
-    #         pass
+        print(X_values)
 
+        agg_clusts = AgglomerativeClustering(n_clusters = None , linkage = 'single', distance_threshold = 3600000000001).fit(X_values)
 
+        labs = agg_clusts.labels_
 
+        intervals = [list(X.reshape(-1)[labs == lab]) for lab in np.unique(labs)]
 
-    # intervals = timeslots_list + [x]
+        # only include interval if it is atleast an hour long
+        intervals = [interval for interval in intervals if len(interval) > 1]
 
-    timeslots_list = []
-    for i in range(len(x) - 1):
-        if ((x[i + 1] - x[i]) > np.timedelta64(1,
-                                               'h')):  # or (i+1 == len(x)-1):
-            timeslots_list.append(x[:i + 1])
-            x = x[i + 1:]
+        if len(intervals) > 0:
+            df = pd.DataFrame([{
+                'start': np.min(interval),
+                'end': np.max(interval)
+            } for interval in intervals])
+        else:
+            df = pd.DataFrame({})
 
-    intervals = timeslots_list + [x]
+    else:
+        df = pd.DataFrame({})
 
-    #second bars not counting in match-ups
-    #print(intervals)
-
-    intervals = [interval for interval in intervals if len(interval) > 1]
-
-    return pd.DataFrame([{
-        'start': np.min(interval),
-        'end': np.max(interval)
-    } for interval in intervals])
+    return df
