@@ -141,3 +141,9 @@ def find_waketimes(df, user_timezone):
         df = pd.DataFrame({})
 
     return df
+
+
+def check_or(idx, waketimes):
+    if idx < len(waketimes)-1:
+        return 'or'
+    return ''
