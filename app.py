@@ -26,14 +26,19 @@ app.layout = html.Div([
                      children=[],
                      style={
                          'display': 'flex',
-                         'flex-direction': 'row',
-                         'flex-wrap': 'wrap'
+                         'flex-flow': 'row wrap'
                      }),
-            dbc.Button("Add Person",
+            dbc.Button("Add Person + ",
                        id="add-person",
                        n_clicks=0,
-                       style={'margin':'10px'}),
-            html.Hr()
+                       style={
+                           'margin': '10px',
+                           'padding': '3px'
+                       }),
+            html.Hr(style={
+                'margin': '0px',
+                'padding': '0px'
+            })
         ])),
     dbc.Row([
         dbc.Col([html.Div(id='timezone-comparison')], width=4),
@@ -41,10 +46,11 @@ app.layout = html.Div([
     ],
             style={'padding': '20px'}),
     dbc.Row([
-        dbc.Col([
-            html.Div('Alec Sharp')
-        ], style = {'padding': '30px'})
-    ])
+        dbc.Col([html.Hr(style={
+                'margin': '0px',
+                'padding': '0px'
+            }),
+            html.Div('Alec Sharp')], style={'padding': '30px'})])
 ])
 
 

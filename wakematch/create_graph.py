@@ -35,5 +35,7 @@ def create_graph(df, user_timezone):
         tickfont={'size': 20},
         autorange="reversed")  # otherwise tasks are listed from the bottom up
 
-    fig.update_layout(yaxis_title=None)
+    fig.update_layout(yaxis_title=None,
+                      margin=dict(l=20, r=20, t=20, b=20),
+                      height=(100 + (len(df.person.unique()) * 100)))
     return fig
