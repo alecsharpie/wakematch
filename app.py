@@ -18,6 +18,8 @@ app = dash.Dash(__name__,
 
 server = app.server
 
+app.title = 'WakeTimes'
+
 app.layout = html.Div([
     html.Div([
         html.H1(children='WakeTimes', style={'textAlign': 'center'}),
@@ -54,7 +56,7 @@ app.layout = html.Div([
                 'margin': '0px',
                 'padding': '0px'
             }),
-            html.Div(['Made by ', dcc.Link('Alec Sharp', href ='www.alecsharpie.me')])], style={'padding': '30px'})])
+            html.Div(['Made by ', dcc.Link('Alec Sharp', href ='https://www.alecsharpie.me')])], style={'padding': '30px'})])
 ])
 
 
