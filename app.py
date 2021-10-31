@@ -5,9 +5,8 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State, ALL
 
 import pytz
-import numpy as np
 
-from wakematch.process_dates import calc_time_diff
+#from wakematch.process_dates import calc_time_diff
 from wakematch.process_data import input_to_dataframe, find_waketimes, check_or
 from wakematch.create_graph import create_graph
 
@@ -20,6 +19,33 @@ app = dash.Dash(__name__,
     ])
 
 server = app.server
+
+app.index_string = """<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-31EJTGBS39"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-31EJTGBS39', { 'anonymize_ip': true });
+        </script>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>"""
 
 app.title = 'WakeTimes'
 
@@ -52,7 +78,12 @@ app.layout = html.Div([
     dbc.Row([
         dbc.Col([html.Div(id='timezone-comparison')],
                 xs = 12, sm = 12, md = 12, lg = 4, xl = 4, xxl = 4),
-        dbc.Col([dcc.Graph(id='timezone-comparison-graph')],
+        dbc.Col([dcc.Graph(id='timezone-comparison-graph'),
+                 html.Div([html.Span('Yellow', style = {'color': '#FCB01C'}),
+                           html.Span(' means an individual is awake, '),
+                           html.Span('Blue',style = {'color': '#008CEF'}),
+                           html.Span(' shows a Match!')],
+                          style = {'margin': '0px 0px 0px 0px'})],
                 xs = 12, sm = 12, md = 12, lg = 8, xl = 8, xxl = 8)
     ],
             style={'padding': '20px'}),
@@ -163,7 +194,7 @@ def update_comparison(values):
                     html.Br()
                 ]) for tz in df.tz.unique()
             ] + [
-                html.Div(check_or(idx, waketimes), style = {'line-height': '2'})
+                html.Div(check_or(idx, waketimes), style = {'line-height': '3'})
             ]) for idx, row in waketimes.iterrows()
         ])
 
