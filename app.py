@@ -6,7 +6,7 @@ from dash.dependencies import Input, Output, State, ALL
 
 import pytz
 
-#from wakematch.process_dates import calc_time_diff
+from wakematch.process_dates import calc_time_diff
 from wakematch.process_data import input_to_dataframe, find_waketimes, check_or
 from wakematch.create_graph import create_graph
 
@@ -190,7 +190,7 @@ def update_comparison(values):
                     html.Span(
                         f"{row['end'].astimezone(pytz.timezone(tz)).strftime('%a, %-I %p')}",
                         style={'font-weight': 'bold'}),
-                    html.Span(f" {tz}"), # {calc_time_diff(row['start'].replace(tzinfo=None), user_tz = values[0], input_tz = tz)}"),
+                    html.Span(f" {tz} {calc_time_diff(row['start'].replace(tzinfo=None), user_tz = values[0], input_tz = tz)}"),
                     html.Br()
                 ]) for tz in df.tz.unique()
             ] + [

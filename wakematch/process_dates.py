@@ -20,7 +20,18 @@ def get_times(user_timezone):
 
 def calc_time_diff(date, user_tz, input_tz):
 
-    time_diff = (pytz.timezone(input_tz).localize(date).astimezone(pytz.timezone(user_tz)) - pytz.timezone(user_tz).localize(date)).seconds//3600 * -1
-    if time_diff != 0:
-        return f"({time_diff} h)"
-    return ""
+    if user_tz == input_tz:
+        return ""
+
+    user_utcoffset = pytz.timezone(user_tz).localize(date).utcoffset()
+    input_utcoffset = pytz.timezone(input_tz).localize(date).utcoffset()
+
+    time_diff = input_utcoffset - user_utcoffset
+
+    hours = time_diff.total_seconds()/3600
+
+    hours_str = f"{hours} h"
+
+    if hours > 0:
+        hours_str = f'+{hours_str}'
+    return hours_str
