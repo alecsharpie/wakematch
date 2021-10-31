@@ -14,7 +14,10 @@ from wakematch.create_graph import create_graph
 
 app = dash.Dash(__name__,
                 suppress_callback_exceptions=True,
-                external_stylesheets=[dbc.themes.BOOTSTRAP])
+                external_stylesheets=[dbc.themes.BOOTSTRAP],
+                meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+    ])
 
 server = app.server
 
@@ -47,8 +50,10 @@ app.layout = html.Div([
             })
         ])),
     dbc.Row([
-        dbc.Col([html.Div(id='timezone-comparison')], width=4),
-        dbc.Col([dcc.Graph(id='timezone-comparison-graph')], width=8)
+        dbc.Col([html.Div(id='timezone-comparison')],
+                xs = 12, sm = 12, md = 12, lg = 4, xl = 4, xxl = 4),
+        dbc.Col([dcc.Graph(id='timezone-comparison-graph')],
+                xs = 12, sm = 12, md = 12, lg = 8, xl = 8, xxl = 8)
     ],
             style={'padding': '20px'}),
     dbc.Row([
@@ -84,7 +89,8 @@ def display_dropdowns(n_clicks, children):
                          'label': i,
                          'value': i
                      } for i in all_timezones],
-                     value='Australia/Victoria'),
+                     value='Australia/Victoria',
+                     style = {'margin': '5px'}),
         dcc.RangeSlider(id={
             'type': 'user-inputs',
             'index': n_clicks
@@ -121,7 +127,8 @@ def display_dropdowns(n_clicks, children):
                         value=[8, 22])
     ],
                             style={
-                                'width': '33%',
+                                'width': '100%',
+                                'max-width' : '400px',
                                 'padding': '0px 10px 10px 10px'
                             })
     children.append(new_dropdown)
